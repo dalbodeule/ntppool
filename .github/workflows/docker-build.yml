@@ -1,8 +1,11 @@
-name: Build and push multi-arch Docker image
+name: Build and push multi-arch Docker image (with build cache)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**'
+    tags:
+      - '**'
   workflow_dispatch:
 
 jobs:
@@ -12,8 +15,31 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (fetch tags)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine image tag (git tag or short commit)
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            IMAGE_TAG="${GITHUB_REF#refs/tags/}"
+          else
+            IMAGE_TAG="${GITHUB_SHA::8}"
+          fi
+
+          # export for later steps
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+          # Build newline-separated TAGS list; add :latest when on main branch
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            printf 'dalbodeule/ntpd:%s\ndalbodeule/ntpd:latest\n' "${IMAGE_TAG}" > /tmp/tags_list
+          else
+            printf 'dalbodeule/ntpd:%s\n' "${IMAGE_TAG}" > /tmp/tags_list
+          fi
+          # expose tags as env
+          echo "TAGS=$(paste -s -d' ' /tmp/tags_list)" >> $GITHUB_ENV
 
       - name: Set up QEMU (for cross-platform emulation)
         uses: docker/setup-qemu-action@v2
@@ -27,13 +53,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Buildx build and push
+      - name: Buildx build and push multi-arch image (with registry cache)
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/arm64,linux/amd64
           push: true
-          tags: |
-            dalbodeule/ntpd:latest
-            dalbodeule/ntpd:25111101
+          tags: ${{ env.TAGS }}
+          cache-from: type=registry,ref=dalbodeule/ntpd:buildcache
+          cache-to: type=registry,ref=dalbodeule/ntpd:buildcache,mode=max
+
+      - name: Inspect pushed tags
+        run: |
+          echo "Pushed tags: $TAGS"
+          echo "Cache image: dalbodeule/ntpd:buildcache"
