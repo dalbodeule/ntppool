@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   ntpd:
-    image: nicholasdille/openntpd:latest
+    image: lfkeitel/ntpd:latest
     container_name: ntpd
     privileged: true
     restart: unless-stopped
