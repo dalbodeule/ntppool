@@ -41,4 +41,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # run ntpd; use -u to drop privileges after binding
 ENTRYPOINT ["/usr/sbin/ntpd"]
-CMD ["-g", "-u", "ntp:ntp", "-n"]
+CMD ["-g", "-n"]
