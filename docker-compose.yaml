@@ -5,6 +5,7 @@ services:
     image: dalbodeule/ntpd:latest
     container_name: ntpd
     restart: unless-stopped
+    privileged: true
     ports:
       - "123:123/udp"
     volumes:

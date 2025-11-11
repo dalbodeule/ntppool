@@ -35,10 +35,6 @@ COPY --from=builder /out/usr/bin/ntp-keygen /usr/bin/ntp-keygen
 
 EXPOSE 123/udp
 
-# simple healthcheck (requires ntpq from image)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD ntpq -p | grep -q . || exit 1
-
 # run ntpd; use -u to drop privileges after binding
 ENTRYPOINT ["/usr/sbin/ntpd"]
 CMD ["-n"]
