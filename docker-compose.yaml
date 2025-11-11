@@ -1,7 +1,8 @@
-version: '3.8'
+version: '3.9'
+
 services:
   ntpd:
-    image: hackinglab/alpine-ntpd:latest
+    image: nicholasdille/openntpd:latest
     container_name: ntpd
     restart: unless-stopped
     ports:
