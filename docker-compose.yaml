@@ -10,7 +10,7 @@ services:
       - "123:123/udp"
     volumes:
       - ./ntpd.conf:/etc/ntpd.conf:ro
-      - ./ntpd.drift:/var/db/ntpd.drivt:rw
+      - ./ntpd.drift:/var/db/ntpd.drift:rw
     cap_add:
       - SYS_TIME
     environment:
