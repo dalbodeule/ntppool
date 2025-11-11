@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  ntpd:
+    image: hackinglab/alpine-ntpd:latest
+    container_name: ntpd
+    restart: unless-stopped
+    ports:
+      - "123:123/udp"
+    volumes:
+      - ./ntpd.conf:/etc/ntpd.conf:ro
+    cap_add:
+      - SYS_TIME
+    environment:
+      - TZ=Asia/Seoul
