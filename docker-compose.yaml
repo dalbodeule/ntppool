@@ -4,6 +4,7 @@ services:
   ntpd:
     image: nicholasdille/openntpd:latest
     container_name: ntpd
+    privileged: true
     restart: unless-stopped
     ports:
       - "123:123/udp"
