@@ -1,5 +1,5 @@
 # Build stage
-FROM alpine:3.18 AS builder
+FROM alpine:3.23 AS builder
 ARG VERSION=ntp-4.2.8p18
 
 # build deps
@@ -16,7 +16,7 @@ RUN ./configure --prefix=/usr --sysconfdir=/etc \
     && make install DESTDIR=/out
 
 # Runtime image
-FROM alpine:3.18
+FROM alpine:3.23
 LABEL org.opencontainers.image.authors="dalbodeule <jioo0224@naver.com>"
 LABEL org.opencontainers.image.license="Unlicense"
 
