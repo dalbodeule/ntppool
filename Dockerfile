@@ -1,12 +1,16 @@
 # Build stage
-FROM alpine:3.23 AS builder
 ARG VERSION=ntp-4.2.8p18
+ARG ALPINE=3.24
+
+FROM alpine:${ALPINE} AS builder
+
+ARG VERSION
 
 # build deps
 RUN apk add --no-cache build-base linux-headers wget tar perl openssl-dev
 
 WORKDIR /usr/src
-RUN wget -qO ${VERSION}.tar.gz https://downloads.nwtime.org/ntp/${VERSION}.tar.gz \
+RUN wget -qO ${VERSION}.tar.gz https://archive.ntp.org/ntp4/${VERSION}.tar.gz \
     && tar xzf ${VERSION}.tar.gz
 
 WORKDIR /usr/src/${VERSION}
@@ -16,15 +20,17 @@ RUN ./configure --prefix=/usr --sysconfdir=/etc \
     && make install DESTDIR=/out
 
 # Runtime image
-FROM alpine:3.23
+FROM alpine:${ALPINE}
 LABEL org.opencontainers.image.authors="dalbodeule <jioo0224@naver.com>"
 LABEL org.opencontainers.image.license="Unlicense"
 
 # runtime deps (ca-certificates/tzdata optional)
 RUN apk add --no-cache ca-certificates tzdata
 
-# create ntp user; ntpd will drop privileges using -u ntp:ntp
-RUN mkdir -p /var/lib/ntp /var/log/ntp /etc/ntp \
+# create ntp user/group; ntpd will drop privileges using -u ntp:ntp
+RUN (getent group ntp >/dev/null 2>&1 || addgroup -S ntp) \
+    && (id -u ntp >/dev/null 2>&1 || adduser -S -D -H -G ntp ntp) \
+    && mkdir -p /var/lib/ntp /var/log/ntp /etc/ntp \
     && chown -R ntp:ntp /var/lib/ntp /var/log/ntp
 
 # copy installed binaries from builder
