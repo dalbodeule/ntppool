@@ -1,6 +1,6 @@
 # Build stage
 ARG VERSION=ntp-4.2.8p18
-ARG ALPINE=3.24
+ARG ALPINE=3.24.1
 
 FROM alpine:${ALPINE} AS builder
 
