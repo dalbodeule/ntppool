@@ -5,10 +5,15 @@ services:
     image: dalbodeule/ntpd:latest
     container_name: ntpd
     restart: unless-stopped
-    # Use the host network namespace so ntpd can bind both 0.0.0.0:123 and
-    # [::]:123. Docker's default bridge publishes IPv4 here unless the
-    # daemon is separately configured for IPv6.
-    network_mode: host
+    ports:
+      - target: 123
+        published: "123"
+        host_ip: 0.0.0.0
+        protocol: udp
+      - target: 123
+        published: "123"
+        host_ip: "::"
+        protocol: udp
     volumes:
       - ./ntpd.conf:/etc/ntp.conf:ro
       - ntpd-drift:/var/db

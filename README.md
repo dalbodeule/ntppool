@@ -15,10 +15,18 @@
 - Adjust ntp.conf if you want to change or add regional pools.
 - Bring up or rebuild the service with `docker compose up -d --build`.
 - If you want ntpd to discipline the host clock, run with the SYS_TIME capability and ensure the container has permission to bind UDP/123.
-- The service uses the host network namespace so ntpd can listen on both IPv4
+- Docker publishes only UDP 123 from the host to the container on both IPv4
   (`0.0.0.0:123`) and IPv6 (`[::]:123`). UDP 123 must be free on the host.
 - The NTP drift file is stored in a Docker named volume and survives restarts.
 - Verify reachability from the internet and monitor offset/stats before registering with pool.ntp.org.
+
+On Ubuntu with UFW, allow NTP through the host firewall (this creates the IPv4
+and IPv6 rules when UFW IPv6 support is enabled):
+
+```sh
+sudo ufw allow 123/udp comment 'NTP server'
+sudo ufw status verbose
+```
 
 ## Notes for pool.ntp.org participation:
 - Ensure stable network, correct time, and good reachability on UDP 123.
@@ -47,7 +55,17 @@
   IPv6(`[::]:123`)에 직접 listen합니다. 호스트에서 UDP 123 포트가
   다른 프로세스에 사용 중이지 않아야 합니다.
 - NTP drift 파일은 Docker named volume에 저장되어 재시작 후에도 유지됩니다.
+
 - 인터넷에서의 도달성 및 시간 오프셋을 점검한 후 pool.ntp.org에 등록하세요.
+
+Ubuntu에서 UFW를 사용한다면 다음 명령으로 호스트 방화벽의 NTP 포트를
+열어야 합니다(UFW IPv6 지원이 활성화되어 있으면 IPv4/IPv6 규칙이 함께
+생성됩니다).
+
+```sh
+sudo ufw allow 123/udp comment 'NTP server'
+sudo ufw status verbose
+```
 
 ## 참고:
 - 안정적인 네트워크, 정확한 시간 유지, UDP 123 도달성 확보가 중요합니다.
