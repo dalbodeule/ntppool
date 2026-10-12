@@ -2,7 +2,7 @@ services:
   ntpd:
     build:
       context: .
-    image: dalbodeule/ntpd:local
+    image: dalbodeule/ntpd:latest
     container_name: ntpd
     restart: unless-stopped
     # Use the host network namespace so ntpd can bind both 0.0.0.0:123 and
