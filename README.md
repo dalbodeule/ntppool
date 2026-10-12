@@ -7,15 +7,17 @@
 
 ## Key points:
 - UDP 123 must be open on the host firewall and any upstream firewalls/NAT devices (both inbound and outbound).
-- Run with docker-compose; simple “up -d” workflow.
+- Run with docker compose; the compose file builds the local Dockerfile.
 - Includes a ready-to-use ntp.conf and docker-compose.yml.
 - Suitable as a starting point to join pool.ntp.org (you still need to meet pool requirements and register your server).
 
 ## Usage:
 - Adjust ntp.conf if you want to change or add regional pools.
-- Bring up the service with docker-compose up -d.
+- Bring up or rebuild the service with `docker compose up -d --build`.
 - If you want ntpd to discipline the host clock, run with the SYS_TIME capability and ensure the container has permission to bind UDP/123.
-- Expose/forward UDP 123 from the host to the container.
+- The service uses the host network namespace so ntpd can listen on both IPv4
+  (`0.0.0.0:123`) and IPv6 (`[::]:123`). UDP 123 must be free on the host.
+- The NTP drift file is stored in a Docker named volume and survives restarts.
 - Verify reachability from the internet and monitor offset/stats before registering with pool.ntp.org.
 
 ## Notes for pool.ntp.org participation:
@@ -33,15 +35,18 @@
 
 ## 핵심 사항:
 - 호스트와 상위 방화벽/NAT에서 UDP 123 포트(수신/발신)가 반드시 열려 있어야 합니다.
-- docker-compose로 간단히 실행할 수 있습니다.
+- docker compose로 로컬 Dockerfile을 빌드하고 실행합니다.
 - ntp.conf와 docker-compose.yml이 포함되어 있습니다.
 - pool.ntp.org 합류를 위한 출발점으로 사용할 수 있습니다(참여 요건 충족 및 등록은 별도로 필요).
 
 ## 사용 방법:
 - 지역에 맞는 NTP 풀로 변경하려면 ntp.conf를 수정하세요.
-- docker-compose up -d로 서비스를 시작합니다.
+- `docker compose up -d --build`로 이미지를 빌드하고 서비스를 시작합니다.
 - 호스트 시계를 ntpd가 보정하도록 하려면 컨테이너에 SYS_TIME 권한을 부여하는 것을 권장합니다.
-- 컨테이너로 UDP 123 포트를 노출/포워딩하세요.
+- 호스트 네트워크를 사용하므로 ntpd가 IPv4(`0.0.0.0:123`)와
+  IPv6(`[::]:123`)에 직접 listen합니다. 호스트에서 UDP 123 포트가
+  다른 프로세스에 사용 중이지 않아야 합니다.
+- NTP drift 파일은 Docker named volume에 저장되어 재시작 후에도 유지됩니다.
 - 인터넷에서의 도달성 및 시간 오프셋을 점검한 후 pool.ntp.org에 등록하세요.
 
 ## 참고:
